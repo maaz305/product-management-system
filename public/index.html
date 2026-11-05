@@ -1,0 +1,520 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ProductManager | Inventory Dashboard</title>
+
+    <meta name="description"
+          content="Manage products, inventory quantities, prices and low-stock alerts.">
+
+    <!-- Professional dashboard styling -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Icons from Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Application JavaScript -->
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+<div class="app-container">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar" id="sidebar">
+
+        <a href="#dashboard" class="brand">
+            <span class="brand-icon">
+                <i data-lucide="package"></i>
+            </span>
+            <span>Product<span class="brand-accent">Manager</span></span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <a href="#dashboard" class="nav-link active"
+               data-section="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="#products" class="nav-link"
+               data-section="products">
+                <i data-lucide="package"></i>
+                <span>Products</span>
+            </a>
+
+            <a href="#add-product" class="nav-link"
+               data-section="add-product">
+                <i data-lucide="circle-plus"></i>
+                <span>Add Product</span>
+            </a>
+
+            <a href="#low-stock" class="nav-link"
+               data-section="low-stock">
+                <i data-lucide="triangle-alert"></i>
+                <span>Low Stock</span>
+                <span class="nav-count" id="sidebarLowStock">0</span>
+            </a>
+
+            <a href="#reports" class="nav-link"
+               data-section="reports">
+                <i data-lucide="chart-column"></i>
+                <span>Reports</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-tip-icon">
+                <i data-lucide="lightbulb"></i>
+            </div>
+            <h3>Manage stock smarter</h3>
+            <p>Keep track of products and know when it's time to reorder.</p>
+        </div>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            <span>Inventory system</span>
+        </div>
+    </aside>
+
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+
+        <!-- TOP HEADER -->
+        <header class="topbar">
+
+            <button class="icon-button mobile-menu"
+                    id="menuToggle"
+                    type="button"
+                    aria-label="Toggle navigation">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <div class="topbar-search">
+                <i data-lucide="search"></i>
+                <input
+                    type="search"
+                    id="globalSearch"
+                    placeholder="Search products..."
+                    aria-label="Search all products">
+            </div>
+
+            <div class="topbar-right">
+                <div class="system-status">
+                    <span class="status-dot"></span>
+                    <span>System Online</span>
+                </div>
+
+                <div class="profile-avatar" aria-hidden="true">
+                    <i data-lucide="user-round"></i>
+                </div>
+
+                <div class="profile-details">
+                    <strong>Administrator</strong>
+                    <span>Inventory Manager</span>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- ========== DASHBOARD SECTION ========== -->
+        <section class="page-section" id="dashboard">
+
+            <div class="page-heading">
+                <div>
+                    <p class="eyebrow">OVERVIEW</p>
+                    <h1>Dashboard</h1>
+                    <p class="page-subtitle">
+                        Welcome! Here's your inventory overview.
+                    </p>
+                </div>
+
+                <button class="btn btn-primary"
+                        id="quickAddButton"
+                        type="button">
+                    <i data-lucide="plus"></i>
+                    Add New Product
+                </button>
+            </div>
+
+
+            <!-- SUMMARY CARDS -->
+            <div class="stats-grid">
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-icon blue">
+                            <i data-lucide="package"></i>
+                        </span>
+                        <span class="stat-label">Total Products</span>
+                    </div>
+                    <h2 id="totalProducts">0</h2>
+                    <p class="stat-note">Products in your inventory</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-icon green">
+                            <i data-lucide="layers"></i>
+                        </span>
+                        <span class="stat-label">Total Quantity</span>
+                    </div>
+                    <h2 id="totalQuantity">0</h2>
+                    <p class="stat-note">Units currently available</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-icon orange">
+                            <i data-lucide="triangle-alert"></i>
+                        </span>
+                        <span class="stat-label">Low Stock Items</span>
+                    </div>
+                    <h2 id="lowStockCount">0</h2>
+                    <p class="stat-note">Products needing attention</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-icon purple">
+                            <i data-lucide="indian-rupee"></i>
+                        </span>
+                        <span class="stat-label">Inventory Value</span>
+                    </div>
+                    <h2 id="inventoryValue">₹0.00</h2>
+                    <p class="stat-note">Price × available quantity</p>
+                </article>
+
+            </div>
+
+
+            <!-- DASHBOARD CONTENT GRID -->
+            <div class="dashboard-grid">
+
+                <!-- PRODUCT TABLE -->
+                <section class="panel products-panel" id="products">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h2>All Products</h2>
+                            <p>View and manage your inventory.</p>
+                        </div>
+
+                        <button class="btn btn-outline btn-small"
+                                id="refreshButton"
+                                type="button">
+                            <i data-lucide="refresh-cw"></i>
+                            Refresh
+                        </button>
+                    </div>
+
+
+                    <!-- SEARCH AND FILTERS -->
+                    <div class="table-toolbar">
+
+                        <div class="input-with-icon search-field">
+                            <i data-lucide="search"></i>
+                            <input type="search"
+                                   id="productSearch"
+                                   placeholder="Search by product name...">
+                        </div>
+
+                        <select id="categoryFilter"
+                                aria-label="Filter by category">
+                            <option value="">All Categories</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Home & Kitchen">Home &amp; Kitchen</option>
+                            <option value="Stationery">Stationery</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Other">Other</option>
+                        </select>
+
+                        <select id="sortFilter"
+                                aria-label="Sort products">
+                            <option value="name-asc">Name: A–Z</option>
+                            <option value="name-desc">Name: Z–A</option>
+                            <option value="price-asc">Price: Low–High</option>
+                            <option value="price-desc">Price: High–Low</option>
+                            <option value="quantity-asc">Quantity: Low–High</option>
+                            <option value="quantity-desc">Quantity: High–Low</option>
+                        </select>
+
+                    </div>
+
+
+                    <!-- RESPONSIVE PRODUCT TABLE -->
+                    <div class="table-wrapper">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th>Product ID</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Reorder Level</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="productTableBody">
+                                <tr>
+                                    <td colspan="8" class="empty-state">
+                                        <i data-lucide="package-open"></i>
+                                        <strong>No products loaded yet</strong>
+                                        <span>
+                                            Connect the backend to display your products.
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <div class="table-footer">
+                        <span id="tableInfo">Showing 0 products</span>
+
+                        <div class="pagination">
+                            <button class="page-button"
+                                    id="prevPage"
+                                    type="button"
+                                    disabled
+                                    aria-label="Previous page">
+                                <i data-lucide="chevron-left"></i>
+                            </button>
+
+                            <span id="currentPage">1</span>
+
+                            <button class="page-button"
+                                    id="nextPage"
+                                    type="button"
+                                    disabled
+                                    aria-label="Next page">
+                                <i data-lucide="chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </section>
+
+
+                <!-- ADD PRODUCT FORM -->
+                <section class="panel form-panel" id="add-product">
+
+                    <div class="panel-heading">
+                        <div class="form-heading-icon">
+                            <i data-lucide="circle-plus"></i>
+                        </div>
+
+                        <div>
+                            <h2 id="formTitle">Add New Product</h2>
+                            <p>Enter the product details below.</p>
+                        </div>
+                    </div>
+
+
+                    <form id="productForm">
+
+                        <!-- Used when editing an existing product -->
+                        <input type="hidden" id="productId">
+
+                        <div class="form-group">
+                            <label for="productCode">Product ID</label>
+                            <input
+                                type="text"
+                                id="productCode"
+                                name="product_code"
+                                placeholder="e.g. PROD-001"
+                                maxlength="50"
+                                required>
+                            <small class="field-hint">Enter a unique ID for this product.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productName">Product Name</label>
+                            <input
+                                type="text"
+                                id="productName"
+                                name="product_name"
+                                placeholder="e.g. Wireless Mouse"
+                                maxlength="150"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">Category</label>
+                            <select id="productCategory"
+                                    name="category"
+                                    required>
+                                <option value="">Select a category</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Home & Kitchen">Home &amp; Kitchen</option>
+                                <option value="Stationery">Stationery</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+
+                            <div class="form-group">
+                                <label for="productPrice">Price (₹)</label>
+                                <input
+                                    type="number"
+                                    id="productPrice"
+                                    name="price"
+                                    placeholder="0.00"
+                                    min="0"
+                                    max="99999999.99"
+                                    step="0.01"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productQuantity">Quantity</label>
+                                <input
+                                    type="number"
+                                    id="productQuantity"
+                                    name="quantity"
+                                    placeholder="0"
+                                    min="0"
+                                    step="1"
+                                    required>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reorderLevel">Reorder Level</label>
+                            <input
+                                type="number"
+                                id="reorderLevel"
+                                name="reorder_level"
+                                placeholder="e.g. 10"
+                                min="0"
+                                step="1"
+                                value="10"
+                                required>
+
+                            <small class="field-hint">
+                                An alert appears when quantity is at or below this value.
+                            </small>
+                        </div>
+
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-full"
+                                    id="submitProduct"
+                                    type="submit">
+                                <i data-lucide="plus"></i>
+                                Save Product
+                            </button>
+
+                            <button class="btn btn-outline btn-full"
+                                    id="cancelEdit"
+                                    type="button"
+                                    hidden>
+                                Cancel Editing
+                            </button>
+                        </div>
+
+                        <p id="formMessage"
+                           class="form-message"
+                           role="status"
+                           aria-live="polite"></p>
+
+                    </form>
+
+                </section>
+
+
+                <!-- LOW STOCK SECTION -->
+                <section class="panel low-stock-panel" id="low-stock">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Low Stock Alerts</h2>
+                            <p>Products that may need restocking.</p>
+                        </div>
+
+                        <span class="alert-icon">
+                            <i data-lucide="bell-ring"></i>
+                        </span>
+                    </div>
+
+                    <div id="lowStockList" class="low-stock-list">
+                        <div class="low-stock-empty">
+                            <i data-lucide="shield-check"></i>
+                            <p>Low-stock alerts will appear here.</p>
+                        </div>
+                    </div>
+
+                </section>
+
+
+                <!-- REPORTS SECTION -->
+                <section class="panel report-panel" id="reports">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Inventory Summary</h2>
+                            <p>Quick overview of your stock.</p>
+                        </div>
+
+                        <i data-lucide="chart-no-axes-combined"
+                           class="report-heading-icon"></i>
+                    </div>
+
+                    <div class="report-row">
+                        <span>In Stock</span>
+                        <strong id="inStockCount">0</strong>
+                    </div>
+
+                    <div class="report-row">
+                        <span>Low Stock</span>
+                        <strong id="reportLowStock">0</strong>
+                    </div>
+
+                    <div class="report-row">
+                        <span>Out of Stock</span>
+                        <strong id="outOfStockCount">0</strong>
+                    </div>
+
+                    <button class="btn btn-outline btn-full"
+                            id="exportButton"
+                            type="button">
+                        <i data-lucide="download"></i>
+                        Export Products CSV
+                    </button>
+
+                </section>
+
+            </div>
+
+            <!-- FOOTER -->
+            <footer class="app-footer">
+                <span>ProductManager</span>
+                <span>Inventory Management System</span>
+            </footer>
+
+        </section>
+
+    </main>
+</div>
+
+<!-- Used for temporary success/error notifications -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- Mobile sidebar backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+</body>
+</html>
